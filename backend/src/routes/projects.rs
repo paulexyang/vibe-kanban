@@ -251,19 +251,6 @@ pub async fn create_project(
 
     match Project::create(&app_state.db_pool, &payload, id).await {
         Ok(project) => {
-            // Track project creation event
-            app_state
-                .track_analytics_event(
-                    "project_created",
-                    Some(serde_json::json!({
-                        "project_id": project.id.to_string(),
-                        "use_existing_repo": payload.use_existing_repo,
-                        "has_setup_script": payload.setup_script.is_some(),
-                        "has_dev_script": payload.dev_script.is_some(),
-                    })),
-                )
-                .await;
-
             Ok(ResponseJson(ApiResponse {
                 success: true,
                 data: Some(project),

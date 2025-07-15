@@ -6,11 +6,14 @@ import path from 'path'
 export default defineConfig(({ mode }) => {
   const plugins = [react()];
   
-  // 只在启用 Sentry 且提供了认证时添加插件
-  if (process.env.VITE_ENABLE_SENTRY === 'true' && process.env.SENTRY_AUTH_TOKEN) {
+  // 只在启用 Sentry 且提供了认证和必要配置时添加插件
+  if (process.env.VITE_ENABLE_SENTRY === 'true' && 
+      process.env.SENTRY_AUTH_TOKEN && 
+      process.env.VITE_SENTRY_ORG && 
+      process.env.VITE_SENTRY_PROJECT) {
     plugins.push(sentryVitePlugin({
-      org: process.env.VITE_SENTRY_ORG || "bloop-ai",
-      project: process.env.VITE_SENTRY_PROJECT || "vibe-kanban",
+      org: process.env.VITE_SENTRY_ORG,
+      project: process.env.VITE_SENTRY_PROJECT,
       telemetry: false // 禁用遥测
     }));
   }

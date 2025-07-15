@@ -122,21 +122,8 @@ pub async fn create_task_attempt(
         Ok(true) => {}
     }
 
-    let executor_string = payload.executor.as_ref().map(|exec| exec.to_string());
-
     match TaskAttempt::create(&app_state.db_pool, &payload, task_id).await {
         Ok(attempt) => {
-            app_state
-                .track_analytics_event(
-                    "task_attempt_started",
-                    Some(serde_json::json!({
-                        "task_id": task_id.to_string(),
-                        "executor_type": executor_string.as_deref().unwrap_or("default"),
-                        "attempt_id": attempt.id.to_string(),
-                    })),
-                )
-                .await;
-
             // Start execution asynchronously (don't block the response)
             let app_state_clone = app_state.clone();
             let attempt_id = attempt.id;
@@ -283,18 +270,6 @@ pub async fn merge_task_attempt(
                 return Err(StatusCode::INTERNAL_SERVER_ERROR);
             }
 
-            // Track task attempt merged event
-            app_state
-                .track_analytics_event(
-                    "task_attempt_merged",
-                    Some(serde_json::json!({
-                        "task_id": task_id.to_string(),
-                        "project_id": project_id.to_string(),
-                        "attempt_id": attempt_id.to_string(),
-                    })),
-                )
-                .await;
-
             Ok(ResponseJson(ApiResponse {
                 success: true,
                 data: None,
@@ -383,17 +358,6 @@ pub async fn create_github_pr(
     .await
     {
         Ok(pr_url) => {
-            app_state
-                .track_analytics_event(
-                    "github_pr_created",
-                    Some(serde_json::json!({
-                        "task_id": task_id.to_string(),
-                        "project_id": project_id.to_string(),
-                        "attempt_id": attempt_id.to_string(),
-                    })),
-                )
-                .await;
-
             Ok(ResponseJson(ApiResponse {
                 success: true,
                 data: Some(pr_url),

@@ -2,10 +2,10 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 
 #[cfg(unix)]
 use nix::{sys::signal::Signal, unistd::Pid};
-use tokio::sync::{Mutex, RwLock as TokioRwLock};
+use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::services::{generate_user_id, AnalyticsConfig, AnalyticsService};
+use crate::services::generate_user_id;
 
 #[derive(Debug)]
 pub enum ExecutionType {
@@ -26,7 +26,6 @@ pub struct AppState {
     running_executions: Arc<Mutex<HashMap<Uuid, RunningExecution>>>,
     pub db_pool: sqlx::SqlitePool,
     config: Arc<tokio::sync::RwLock<crate::models::config::Config>>,
-    pub analytics: Arc<TokioRwLock<AnalyticsService>>,
     user_id: String,
 }
 
@@ -35,39 +34,11 @@ impl AppState {
         db_pool: sqlx::SqlitePool,
         config: Arc<tokio::sync::RwLock<crate::models::config::Config>>,
     ) -> Self {
-        // Initialize analytics with user preferences
-        let user_enabled = {
-            let config_guard = config.read().await;
-            config_guard.analytics_enabled.unwrap_or(true)
-        };
-
-        let analytics_config = AnalyticsConfig::new(user_enabled);
-        let analytics = Arc::new(TokioRwLock::new(AnalyticsService::new(analytics_config)));
-
         Self {
             running_executions: Arc::new(Mutex::new(HashMap::new())),
             db_pool,
             config,
-            analytics,
             user_id: generate_user_id(),
-        }
-    }
-
-    pub async fn update_analytics_config(&self, user_enabled: bool) {
-        // Check if analytics was disabled before this update
-        let was_analytics_disabled = {
-            let analytics = self.analytics.read().await;
-            !analytics.is_enabled()
-        };
-
-        let new_config = AnalyticsConfig::new(user_enabled);
-        let new_service = AnalyticsService::new(new_config);
-        let mut analytics = self.analytics.write().await;
-        *analytics = new_service;
-
-        // If analytics was disabled and is now enabled, fire a session_start event
-        if was_analytics_disabled && analytics.is_enabled() {
-            analytics.track_event(&self.user_id, "session_start", None);
         }
     }
 
@@ -175,19 +146,6 @@ impl AppState {
 
     pub fn get_config(&self) -> &Arc<tokio::sync::RwLock<crate::models::config::Config>> {
         &self.config
-    }
-
-    pub async fn track_analytics_event(
-        &self,
-        event_name: &str,
-        properties: Option<serde_json::Value>,
-    ) {
-        let analytics = self.analytics.read().await;
-        if analytics.is_enabled() {
-            analytics.track_event(&self.user_id, event_name, properties);
-        } else {
-            tracing::debug!("Analytics disabled, skipping event: {}", event_name);
-        }
     }
 
     pub async fn update_sentry_scope(&self) {

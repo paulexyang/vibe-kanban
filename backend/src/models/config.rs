@@ -12,13 +12,11 @@ pub struct Config {
     pub executor: ExecutorConfig,
     pub disclaimer_acknowledged: bool,
     pub onboarding_acknowledged: bool,
-    pub telemetry_acknowledged: bool,
     pub sound_alerts: bool,
     pub sound_file: SoundFile,
     pub push_notifications: bool,
     pub editor: EditorConfig,
     pub github: GitHubConfig,
-    pub analytics_enabled: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -159,13 +157,11 @@ impl Default for Config {
             executor: ExecutorConfig::Claude,
             disclaimer_acknowledged: false,
             onboarding_acknowledged: false,
-            telemetry_acknowledged: false,
             sound_alerts: true,
             sound_file: SoundFile::AbstractSound4,
             push_notifications: true,
             editor: EditorConfig::default(),
             github: GitHubConfig::default(),
-            analytics_enabled: None,
         }
     }
 }
@@ -269,11 +265,7 @@ impl Config {
 
             // Try to deserialize as is first
             match serde_json::from_str::<Config>(&content) {
-                Ok(mut config) => {
-                    if config.analytics_enabled.is_none() {
-                        config.analytics_enabled = Some(true);
-                    }
-
+                Ok(config) => {
                     // Always save back to ensure new fields are written to disk
                     config.save(config_path)?;
                     Ok(config)

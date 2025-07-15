@@ -230,26 +230,6 @@ async fn device_poll(
             }
         }
         app_state.update_sentry_scope().await;
-        // Identify user in PostHog
-        let mut props = serde_json::Map::new();
-        if let Some(ref username) = username {
-            props.insert(
-                "username".to_string(),
-                serde_json::Value::String(username.clone()),
-            );
-        }
-        if let Some(ref email) = primary_email {
-            props.insert(
-                "email".to_string(),
-                serde_json::Value::String(email.clone()),
-            );
-        }
-        {
-            let props = serde_json::Value::Object(props);
-            app_state
-                .track_analytics_event("$identify", Some(props))
-                .await;
-        }
 
         ResponseJson(ApiResponse {
             success: true,

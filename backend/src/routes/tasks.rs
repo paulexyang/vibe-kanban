@@ -86,18 +86,6 @@ pub async fn create_task(
 
     match Task::create(&app_state.db_pool, &payload, id).await {
         Ok(task) => {
-            // Track task creation event
-            app_state
-                .track_analytics_event(
-                    "task_created",
-                    Some(serde_json::json!({
-                        "task_id": task.id.to_string(),
-                        "project_id": project_id.to_string(),
-                        "has_description": task.description.is_some(),
-                    })),
-                )
-                .await;
-
             Ok(ResponseJson(ApiResponse {
                 success: true,
                 data: Some(task),
@@ -160,28 +148,6 @@ pub async fn create_task_and_start(
 
     match TaskAttempt::create(&app_state.db_pool, &attempt_payload, task_id).await {
         Ok(attempt) => {
-            app_state
-                .track_analytics_event(
-                    "task_created",
-                    Some(serde_json::json!({
-                        "task_id": task.id.to_string(),
-                        "project_id": project_id.to_string(),
-                        "has_description": task.description.is_some(),
-                    })),
-                )
-                .await;
-
-            app_state
-                .track_analytics_event(
-                    "task_attempt_started",
-                    Some(serde_json::json!({
-                        "task_id": task.id.to_string(),
-                        "executor_type": executor_string.as_deref().unwrap_or("default"),
-                        "attempt_id": attempt.id.to_string(),
-                    })),
-                )
-                .await;
-
             // Start execution asynchronously (don't block the response)
             let app_state_clone = app_state.clone();
             let attempt_id = attempt.id;

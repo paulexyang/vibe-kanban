@@ -292,19 +292,6 @@ impl ProcessService {
         )
         .await;
 
-        if result.is_ok() {
-            app_state
-                .track_analytics_event(
-                    "dev_server_started",
-                    Some(serde_json::json!({
-                        "task_id": task_id.to_string(),
-                        "project_id": project_id.to_string(),
-                        "attempt_id": attempt_id.to_string()
-                    })),
-                )
-                .await;
-        }
-
         result
     }
 

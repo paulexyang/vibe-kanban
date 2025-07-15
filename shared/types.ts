@@ -4,7 +4,7 @@
 
 export type ApiResponse<T> = { success: boolean, data: T | null, message: string | null, };
 
-export type Config = { theme: ThemeMode, executor: ExecutorConfig, disclaimer_acknowledged: boolean, onboarding_acknowledged: boolean, telemetry_acknowledged: boolean, sound_alerts: boolean, sound_file: SoundFile, push_notifications: boolean, editor: EditorConfig, github: GitHubConfig, analytics_enabled: boolean | null, };
+export type Config = { theme: ThemeMode, executor: ExecutorConfig, disclaimer_acknowledged: boolean, onboarding_acknowledged: boolean, sound_alerts: boolean, sound_file: SoundFile, push_notifications: boolean, editor: EditorConfig, github: GitHubConfig, };
 
 export type ThemeMode = "light" | "dark" | "system" | "purple" | "green" | "blue" | "orange" | "red";
 
@@ -69,27 +69,6 @@ export type TaskAttemptActivity = { id: string, execution_process_id: string, st
 export type TaskAttemptActivityWithPrompt = { id: string, execution_process_id: string, status: TaskAttemptStatus, note: string | null, created_at: string, prompt: string | null, };
 
 export type CreateTaskAttemptActivity = { execution_process_id: string, status: TaskAttemptStatus | null, note: string | null, };
-
-export type AttemptData = {
-    activities: TaskAttemptActivityWithPrompt[];
-    processes: ExecutionProcessSummary[];
-    runningProcessDetails: Record<string, ExecutionProcess>;
-}
-
-export interface ProcessedLine {
-    content: string;
-    chunkType: DiffChunkType;
-    oldLineNumber?: number;
-    newLineNumber?: number;
-}
-
-export interface ProcessedSection {
-    type: 'context' | 'change' | 'expanded';
-    lines: ProcessedLine[];
-    expandKey?: string;
-    expandedAbove?: boolean;
-    expandedBelow?: boolean;
-}
 
 export type DirectoryEntry = { name: string, path: string, is_directory: boolean, is_git_repo: boolean, };
 
