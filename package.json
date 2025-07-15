@@ -20,7 +20,10 @@
     "backend:test": "npm run cargo -- test --lib",
     "generate-types": "cd backend && cargo run --bin generate_types",
     "prepare-db": "node scripts/prepare-db.js",
-    "dev:clear-ports": "node scripts/setup-dev-environment.js clear"
+    "dev:clear-ports": "node scripts/setup-dev-environment.js clear",
+    "start": "concurrently \"npm run backend:start\" \"npm run frontend:start\"",
+    "backend:start": "cd backend && ./target/release/vibe-kanban",
+    "frontend:start": "cd frontend && npm run preview"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
