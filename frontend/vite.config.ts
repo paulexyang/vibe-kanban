@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
   },
 
   server: {
+    host: '0.0.0.0',  // 监听所有网络接口
     port: parseInt(process.env.FRONTEND_PORT || '3000'),
     open: false,
     proxy: {
