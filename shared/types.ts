@@ -70,6 +70,27 @@ export type TaskAttemptActivityWithPrompt = { id: string, execution_process_id: 
 
 export type CreateTaskAttemptActivity = { execution_process_id: string, status: TaskAttemptStatus | null, note: string | null, };
 
+export type AttemptData = {
+    activities: TaskAttemptActivityWithPrompt[];
+    processes: ExecutionProcessSummary[];
+    runningProcessDetails: Record<string, ExecutionProcess>;
+}
+
+export interface ProcessedLine {
+    content: string;
+    chunkType: DiffChunkType;
+    oldLineNumber?: number;
+    newLineNumber?: number;
+}
+
+export interface ProcessedSection {
+    type: 'context' | 'change' | 'expanded';
+    lines: ProcessedLine[];
+    expandKey?: string;
+    expandedAbove?: boolean;
+    expandedBelow?: boolean;
+}
+
 export type DirectoryEntry = { name: string, path: string, is_directory: boolean, is_git_repo: boolean, };
 
 export type DiffChunkType = "Equal" | "Insert" | "Delete";
