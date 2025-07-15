@@ -3,7 +3,8 @@
   "version": "0.0.46",
   "private": true,
   "scripts": {
-    "dev": "export FRONTEND_PORT=$(node scripts/setup-dev-environment.js frontend) && export BACKEND_PORT=$(node scripts/setup-dev-environment.js backend) && concurrently \"npm run backend:dev:watch\" \"npm run frontend:dev\"",
+    "dev": "export FRONTEND_PORT=$(node scripts/setup-dev-environment.js frontend) && export BACKEND_PORT=$(node scripts/setup-dev-environment.js backend) && concurrently \"npm run backend:dev:watch\" \"npm run frontend:dev:wait\"",
+    "frontend:dev:wait": "node scripts/wait-for-backend.js && cd frontend && npm run dev -- --port ${FRONTEND_PORT:-3000} --open",
     "build": "npm run frontend:build && npm run backend:build",
     "build:single": "npm run frontend:build && npm run backend:build:single",
     "build:npm": "./build-npm-package.sh",
@@ -28,5 +29,8 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=8"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.54.1"
   }
 }
