@@ -245,12 +245,7 @@ fn main() -> anyhow::Result<()> {
 
             tracing::info!("Server running on http://0.0.0.0:{actual_port}");
 
-            if !cfg!(debug_assertions) {
-                tracing::info!("Opening browser...");
-                if let Err(e) = utils::open_browser(&format!("http://127.0.0.1:{actual_port}")).await {
-                    tracing::warn!("Failed to open browser automatically: {}. Please open http://127.0.0.1:{} manually.", e, actual_port);
-                }
-            }
+            // Browser auto-launch disabled
 
             axum::serve(listener, app).await?;
 

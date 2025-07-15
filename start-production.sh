@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}Starting Vibe Kanban in production mode...${NC}"
 
 # Check if build exists
-if [ ! -f "backend/target/release/vibe-kanban" ]; then
+if [ ! -f "target/release/vibe-kanban" ]; then
     echo -e "${YELLOW}Backend binary not found. Building...${NC}"
     pnpm build
 fi
@@ -29,7 +29,6 @@ export BACKEND_PORT=3001
 echo -e "${GREEN}Starting backend on port $BACKEND_PORT...${NC}"
 ./target/release/vibe-kanban &
 BACKEND_PID=$!
-cd ..
 
 # Wait for backend to be ready
 echo -e "${YELLOW}Waiting for backend to start...${NC}"
