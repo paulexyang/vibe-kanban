@@ -21,9 +21,9 @@
     "generate-types": "cd backend && cargo run --bin generate_types",
     "prepare-db": "node scripts/prepare-db.js",
     "dev:clear-ports": "node scripts/setup-dev-environment.js clear",
-    "start": "concurrently \"npm run backend:start\" \"npm run frontend:start\"",
-    "backend:start": "cd backend && ./target/release/vibe-kanban",
-    "frontend:start": "cd frontend && npm run preview"
+    "start": "export BACKEND_PORT=3001 && concurrently \"npm run backend:start\" \"npm run frontend:start\"",
+    "backend:start": "cd backend && BACKEND_PORT=$BACKEND_PORT ./target/release/vibe-kanban",
+    "frontend:start": "cd frontend && vite preview --host 0.0.0.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
