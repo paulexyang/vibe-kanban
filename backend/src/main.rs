@@ -120,20 +120,32 @@ async fn serve_sound_file(
 }
 
 fn main() -> anyhow::Result<()> {
-    let environment = if cfg!(debug_assertions) {
-        "dev"
+    // Only initialize Sentry if explicitly enabled via environment variable
+    let _guard = if std::env::var("ENABLE_SENTRY").unwrap_or_default() == "true" {
+        // 只在提供了 SENTRY_DSN 时启用 Sentry
+        if let Ok(dsn) = std::env::var("SENTRY_DSN") {
+            let environment = if cfg!(debug_assertions) {
+                "dev"
+            } else {
+                "production"
+            };
+            let guard = sentry::init((dsn, sentry::ClientOptions {
+                release: sentry::release_name!(),
+                environment: Some(environment.into()),
+                attach_stacktrace: true,
+                ..Default::default()
+            }));
+            sentry::configure_scope(|scope| {
+                scope.set_tag("source", "server");
+            });
+            Some(guard)
+        } else {
+            tracing::info!("Sentry is disabled (SENTRY_DSN not set)");
+            None
+        }
     } else {
-        "production"
+        None
     };
-    let _guard = sentry::init(("https://1065a1d276a581316999a07d5dffee26@o4509603705192449.ingest.de.sentry.io/4509605576441937", sentry::ClientOptions {
-        release: sentry::release_name!(),
-        environment: Some(environment.into()),
-        attach_stacktrace: true,
-        ..Default::default()
-    }));
-    sentry::configure_scope(|scope| {
-        scope.set_tag("source", "server");
-    });
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
@@ -169,8 +181,7 @@ fn main() -> anyhow::Result<()> {
 
             app_state.update_sentry_scope().await;
 
-            // Track session start event
-            app_state.track_analytics_event("session_start", None).await;
+            // Analytics disabled - no tracking
             // Start background task to check for init status and spawn processes
             let state_clone = app_state.clone();
             tokio::spawn(async move {

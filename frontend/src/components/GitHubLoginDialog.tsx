@@ -112,12 +112,12 @@ export function GitHubLoginDialog({
   }, [deviceState?.user_code]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} uncloseable>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Sign in with GitHub</DialogTitle>
           <DialogDescription>
-            Connect your GitHub account to use Vibe Kanban.
+            Connect your GitHub account to create Pull Requests. You can skip this if you only want to use AI coding features.
           </DialogDescription>
         </DialogHeader>
         {loading ? (
@@ -202,7 +202,10 @@ export function GitHubLoginDialog({
         ) : (
           <>
             {error && <div className="text-red-500 mb-2">{error}</div>}
-            <DialogFooter>
+            <DialogFooter className="flex justify-between">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Skip for now
+              </Button>
               <Button onClick={handleLogin} disabled={fetching}>
                 {fetching ? 'Starting…' : 'Sign in with GitHub'}
               </Button>
