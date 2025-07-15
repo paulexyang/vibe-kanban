@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => {
     host: '0.0.0.0',  // 监听所有网络接口
     port: parseInt(process.env.FRONTEND_PORT || '3000'),
     open: false,
+    allowedHosts: ['vibe.yangpu.dev'],
     proxy: {
       '/api': {
         target: `http://localhost:${process.env.BACKEND_PORT || '3001'}`,
